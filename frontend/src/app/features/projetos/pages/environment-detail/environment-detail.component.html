@@ -1,0 +1,150 @@
+<div class="env-container">
+  <div class="page-header">
+    <button mat-icon-button [routerLink]="['/projects', projectId()]">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h1>{{ project()?.name }}</h1>
+      <p class="subtitle">Ambiente #{{ environmentId() }}</p>
+    </div>
+    <button mat-raised-button color="primary"
+      [routerLink]="['/projects', projectId(), 'environments', environmentId(), 'items', 'new']">
+      <mat-icon>add</mat-icon> Novo item
+    </button>
+  </div>
+
+  <!-- Progresso -->
+  <mat-card class="progress-card">
+    <mat-card-content>
+      <div class="progress-header">
+        <span class="progress-label">Progresso do ambiente</span>
+        <span class="progress-pct">{{ completionPercentage() }}%</span>
+      </div>
+      <mat-progress-bar mode="determinate" [value]="completionPercentage()"
+        [color]="completionPercentage() === 100 ? 'accent' : 'primary'" />
+      <p class="progress-hint">
+        {{ completedCount() }} de {{ items().length }} itens concluídos
+      </p>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Resumo financeiro -->
+  <div class="summary-row">
+    <mat-card class="summary-card">
+      <mat-card-content>
+        <div class="label">Total orçado</div>
+        <div class="value">{{ totalBudgeted() | brl }}</div>
+      </mat-card-content>
+    </mat-card>
+    <mat-card class="summary-card">
+      <mat-card-content>
+        <div class="label">Total efetivo</div>
+        <div class="value" [class.over]="totalActual() > totalBudgeted()">
+          {{ totalActual() | brl }}
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  @if (carregando()) {
+    <p>Carregando...</p>
+  } @else if (items().length === 0) {
+    <div class="empty-state">
+      <mat-icon>inventory_2</mat-icon>
+      <p>Nenhum item cadastrado.</p>
+    </div>
+  } @else {
+    <table mat-table [dataSource]="items()" class="items-table">
+
+      <!-- Coluna de status (finalizado + atrasado) -->
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let item">
+          <div class="status-cell">
+            <button mat-icon-button
+              [color]="item.completed ? 'primary' : ''"
+              (click)="toggleCompleted(item)"
+              [matTooltip]="item.completed ? 'Marcar como pendente' : 'Marcar como concluído'">
+              <mat-icon>{{ item.completed ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+            </button>
+            <button mat-icon-button
+              [color]="item.delayed ? 'warn' : ''"
+              (click)="toggleDelayed(item)"
+              [matTooltip]="item.delayed ? 'Remover atraso' : 'Marcar como atrasado'">
+              <mat-icon>{{ item.delayed ? 'warning' : 'warning_amber' }}</mat-icon>
+            </button>
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="description">
+        <th mat-header-cell *matHeaderCellDef>Descrição</th>
+        <td mat-cell *matCellDef="let item">
+          <div class="description-cell" [class.item-completed]="item.completed">
+            {{ item.description }}
+            @if (item.delayed) {
+              <span class="delayed-badge" matTooltip="Item com atraso">
+                <mat-icon>schedule</mat-icon> Atrasado
+              </span>
+            }
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="type">
+        <th mat-header-cell *matHeaderCellDef>Tipo</th>
+        <td mat-cell *matCellDef="let item">
+          <mat-chip [color]="item.type === 'MATERIAL' ? 'primary' : 'accent'" highlighted>
+            {{ item.type === 'MATERIAL' ? 'Material' : 'Mão de obra' }}
+          </mat-chip>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="quantity">
+        <th mat-header-cell *matHeaderCellDef>Qtd</th>
+        <td mat-cell *matCellDef="let item">{{ item.quantity }} {{ item.unit }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="unitPrice">
+        <th mat-header-cell *matHeaderCellDef>Preço unit.</th>
+        <td mat-cell *matCellDef="let item">{{ item.unitPrice | brl }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="budgeted">
+        <th mat-header-cell *matHeaderCellDef>Orçado</th>
+        <td mat-cell *matCellDef="let item">{{ item.totalBudgeted | brl }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="actual">
+        <th mat-header-cell *matHeaderCellDef>Efetivo</th>
+        <td mat-cell *matCellDef="let item" [class.over]="item.totalActual > item.totalBudgeted">
+          {{ item.totalActual | brl }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let item">
+          <button mat-icon-button
+            [routerLink]="['/projects', projectId(), 'environments', environmentId(), 'items', item.id, 'expenses', 'new']"
+            matTooltip="Adicionar gasto">
+            <mat-icon>add_circle_outline</mat-icon>
+          </button>
+          <button mat-icon-button
+            [routerLink]="['/projects', projectId(), 'environments', environmentId(), 'items', item.id, 'edit']"
+            matTooltip="Editar">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deleteItem(item.id)" matTooltip="Excluir">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+        [class.row-delayed]="row.delayed"
+        [class.row-completed]="row.completed"></tr>
+    </table>
+  }
+</div>

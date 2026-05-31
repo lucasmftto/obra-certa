@@ -1,0 +1,48 @@
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--color-bg);
+}
+
+.app-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 10px rgba(62, 39, 35, 0.2);
+  // fundo levemente gradiente para profundidade
+  background: linear-gradient(135deg, #5D4037 0%, #6D4C41 60%, #7B5347 100%) !important;
+}
+
+.toolbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+  padding: 4px 0;
+}
+
+.brand-icon {
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+  color: #FFD740; // âmbar dourado — destaque quente
+}
+
+.brand-name {
+  font-family: 'Nunito', 'Roboto', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  color: #FFFDE7; // creme quase branco
+}
+
+.app-main {
+  flex: 1;
+}

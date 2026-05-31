@@ -1,0 +1,52 @@
+<div class="form-container">
+  <div class="form-header">
+    <button mat-icon-button [routerLink]="['/projects', projectId()]">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1>{{ titulo() }}</h1>
+  </div>
+
+  <mat-card>
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="salvar()" class="env-form">
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nome *</mat-label>
+          <input matInput formControlName="name" autofocus placeholder="Ex: Sala de estar" />
+          @if (form.get('name')?.invalid && form.get('name')?.touched) {
+            <mat-error>Nome é obrigatório</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Descrição</mat-label>
+          <textarea matInput formControlName="description" rows="2"
+            placeholder="Detalhes sobre o ambiente (opcional)"></textarea>
+        </mat-form-field>
+
+        <div class="row-fields">
+          <mat-form-field appearance="outline">
+            <mat-label>Ordem de exibição</mat-label>
+            <input matInput type="number" formControlName="sortOrder" min="1" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>% Concluído</mat-label>
+            <input matInput type="number" formControlName="completionPercentage" min="0" max="100" />
+            <span matTextSuffix>%</span>
+          </mat-form-field>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" mat-stroked-button [routerLink]="['/projects', projectId()]">
+            Cancelar
+          </button>
+          <button type="submit" mat-raised-button color="primary" [disabled]="salvando()">
+            {{ titulo() }}
+          </button>
+        </div>
+
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,0 +1,63 @@
+<div class="projetos-container">
+  <div class="page-header">
+    <div class="header-text">
+      <h1>Meus Projetos</h1>
+      <p>Gerencie seus orçamentos e acompanhe o progresso das obras</p>
+    </div>
+    <button mat-raised-button color="primary" routerLink="/projects/novo">
+      <mat-icon>add</mat-icon>
+      Novo projeto
+    </button>
+  </div>
+
+  <div class="filtros">
+    <mat-form-field appearance="outline" class="busca-field" subscriptSizing="dynamic">
+      <input matInput [formControl]="buscaControl" placeholder="Buscar por nome ou endereço" />
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-select (selectionChange)="onStatusChange($event.value)" placeholder="Status">
+        <mat-option value="">Todos os status</mat-option>
+        <mat-option value="IN_BUDGET">Em orçamento</mat-option>
+        <mat-option value="IN_PROGRESS">Em andamento</mat-option>
+        <mat-option value="ON_HOLD">Pausado</mat-option>
+        <mat-option value="COMPLETED">Concluído</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-button-toggle-group value="TODOS" (change)="onTipoChange($event.value)">
+      <mat-button-toggle value="TODOS">Todos</mat-button-toggle>
+      <mat-button-toggle value="HOUSE">Casa</mat-button-toggle>
+      <mat-button-toggle value="APARTMENT">Apartamento</mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+
+  @if (carregando()) {
+    <div class="loading-container">
+      <mat-spinner diameter="48" />
+    </div>
+  } @else if (projetos().length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon"><mat-icon>home_work</mat-icon></div>
+      <p>Nenhum projeto encontrado</p>
+      <span>Comece criando seu primeiro projeto de reforma</span>
+      <button mat-raised-button color="primary" routerLink="/projects/novo" style="margin-top: 8px">
+        <mat-icon>add</mat-icon> Criar projeto
+      </button>
+    </div>
+  } @else {
+    <div class="projetos-grid">
+      @for (projeto of projetos(); track projeto.id) {
+        <app-projeto-card [projeto]="projeto" />
+      }
+    </div>
+
+    <mat-paginator
+      [length]="totalElements()"
+      [pageSize]="size()"
+      [pageSizeOptions]="[10, 20, 50]"
+      (page)="onPageChange($event)"
+      showFirstLastButtons />
+  }
+</div>

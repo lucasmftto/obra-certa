@@ -1,0 +1,62 @@
+@use '@angular/material' as mat;
+
+@include mat.core();
+
+// Paleta terracota/marrom quente — evoca madeira, tijolo, argamassa
+$primary-palette: mat.define-palette(mat.$brown-palette, 600, 400, 800);
+$accent-palette:  mat.define-palette(mat.$amber-palette, A200, A100, A400);
+$warn-palette:    mat.define-palette(mat.$red-palette);
+
+$theme: mat.define-light-theme((
+  color: (
+    primary: $primary-palette,
+    accent:  $accent-palette,
+    warn:    $warn-palette,
+  ),
+  typography: mat.define-typography-config(),
+  density: 0,
+));
+
+@include mat.all-component-themes($theme);
+
+// ── Variáveis ──────────────────────────────────────────────────────────────
+:root {
+  --color-bg:          #FAF6F1;
+  --color-surface:     #FFFFFF;
+  --color-brand:       #6D4C41;
+  --color-accent:      #F5A623;
+  --color-text:        #3E2723;
+  --color-text-muted:  #8D6E63;
+  --color-border:      #EDE0D8;
+  --shadow-card:       0 2px 8px rgba(62, 39, 35, 0.08);
+  --shadow-hover:      0 6px 20px rgba(62, 39, 35, 0.14);
+}
+
+// ── Reset ──────────────────────────────────────────────────────────────────
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+// ── Cards mais quentes ─────────────────────────────────────────────────────
+.mat-mdc-card {
+  background: var(--color-surface) !important;
+  box-shadow: var(--shadow-card) !important;
+  border-radius: 12px !important;
+  border: 1px solid var(--color-border) !important;
+}
+
+// ── Cantos mais suaves em botões ───────────────────────────────────────────
+.mat-mdc-raised-button,
+.mat-mdc-stroked-button,
+.mat-mdc-button { border-radius: 8px !important; }
+
+// ── Scrollbar discreta ─────────────────────────────────────────────────────
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }

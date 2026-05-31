@@ -1,0 +1,71 @@
+<div class="form-container">
+  <div class="form-header">
+    <button mat-icon-button (click)="voltar()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1>{{ titulo() }}</h1>
+  </div>
+
+  <mat-card>
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="salvar()" class="projeto-form">
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nome do projeto *</mat-label>
+          <input matInput formControlName="name" autofocus />
+          @if (form.get('name')?.errors?.['required'] && form.get('name')?.touched) {
+            <mat-error>Nome é obrigatório</mat-error>
+          }
+          @if (form.get('name')?.errors?.['minlength'] && form.get('name')?.touched) {
+            <mat-error>Nome deve ter no mínimo 3 caracteres</mat-error>
+          }
+          @if (form.get('name')?.errors?.['maxlength'] && form.get('name')?.touched) {
+            <mat-error>Nome deve ter no máximo 200 caracteres</mat-error>
+          }
+        </mat-form-field>
+
+        <div class="tipo-field">
+          <label class="tipo-label">Tipo do imóvel *</label>
+          <mat-radio-group formControlName="type" class="tipo-group">
+            <mat-radio-button value="HOUSE">
+              <mat-icon>home</mat-icon> Casa
+            </mat-radio-button>
+            <mat-radio-button value="APARTMENT">
+              <mat-icon>apartment</mat-icon> Apartamento
+            </mat-radio-button>
+          </mat-radio-group>
+          @if (form.get('type')?.errors?.['required'] && form.get('type')?.touched) {
+            <mat-error class="tipo-error">Selecione o tipo do imóvel</mat-error>
+          }
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Endereço</mat-label>
+          <input matInput formControlName="address" />
+          @if (form.get('address')?.errors?.['maxlength'] && form.get('address')?.touched) {
+            <mat-error>Endereço deve ter no máximo 300 caracteres</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Descrição</mat-label>
+          <textarea matInput formControlName="description" rows="3"></textarea>
+          @if (form.get('description')?.errors?.['maxlength'] && form.get('description')?.touched) {
+            <mat-error>Descrição deve ter no máximo 500 caracteres</mat-error>
+          }
+        </mat-form-field>
+
+        <div class="form-actions">
+          <button type="button" mat-stroked-button routerLink="/projects">Cancelar</button>
+          <button type="submit" mat-raised-button color="primary" [disabled]="salvando()">
+            @if (salvando()) {
+              <mat-icon>hourglass_empty</mat-icon>
+            }
+            {{ labelBotao() }}
+          </button>
+        </div>
+
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

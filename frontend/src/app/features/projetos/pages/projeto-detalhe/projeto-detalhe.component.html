@@ -1,0 +1,179 @@
+<div class="detalhe-container">
+
+  @if (carregando()) {
+    <div class="loading-container">
+      <mat-spinner diameter="48" />
+    </div>
+  }
+
+  @if (projeto(); as p) {
+
+    <!-- Cabeçalho -->
+    <div class="page-hero">
+      <div class="hero-left">
+        <button mat-icon-button class="back-btn" routerLink="/projects">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <div class="hero-info">
+          <div class="hero-meta">
+            <app-projeto-status-badge [status]="p.status" />
+            <span class="tipo-chip">
+              <mat-icon>{{ p.type === 'HOUSE' ? 'home' : 'apartment' }}</mat-icon>
+              {{ p.type === 'HOUSE' ? 'Casa' : 'Apartamento' }}
+            </span>
+            @if (p.hasDelayedItems) {
+              <span class="alerta-chip delay">
+                <mat-icon>schedule</mat-icon> Itens atrasados
+              </span>
+            }
+            @if (p.overBudget) {
+              <span class="alerta-chip budget">
+                <mat-icon>warning</mat-icon> Orçamento estourado
+              </span>
+            }
+          </div>
+          <h1 class="hero-title">{{ p.name }}</h1>
+          @if (p.address) {
+            <p class="hero-address">
+              <mat-icon>location_on</mat-icon>{{ p.address }}
+            </p>
+          }
+          @if (p.description) {
+            <p class="hero-description">{{ p.description }}</p>
+          }
+        </div>
+      </div>
+
+      <div class="hero-actions">
+        @for (acao of acoesPorStatus(); track acao.novoStatus) {
+          <button mat-raised-button [color]="acao.color" (click)="mudarStatus(acao.novoStatus)">
+            <mat-icon>{{ acao.icon }}</mat-icon>
+            {{ acao.label }}
+          </button>
+        }
+        @if (podeEditar()) {
+          <button mat-icon-button [routerLink]="['/projects', p.id, 'editar']" matTooltip="Editar">
+            <mat-icon>edit</mat-icon>
+          </button>
+        }
+        @if (podeExcluir()) {
+          <button mat-icon-button color="warn" (click)="excluir()" matTooltip="Excluir">
+            <mat-icon>delete</mat-icon>
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Cards de resumo -->
+    <div class="resumo-grid">
+      <div class="resumo-card">
+        <div class="resumo-icon-wrap icon-blue">
+          <mat-icon>account_balance_wallet</mat-icon>
+        </div>
+        <div class="resumo-body">
+          <span class="resumo-label">Total orçado</span>
+          <span class="resumo-valor">{{ p.totalBudget | brl }}</span>
+        </div>
+      </div>
+
+      <div class="resumo-card" [class.card-warn]="p.overBudget">
+        <div class="resumo-icon-wrap" [class]="p.overBudget ? 'icon-red' : 'icon-green'">
+          <mat-icon>{{ p.overBudget ? 'trending_up' : 'payments' }}</mat-icon>
+        </div>
+        <div class="resumo-body">
+          <span class="resumo-label">Total efetivo</span>
+          <span class="resumo-valor" [class.text-warn]="p.overBudget">
+            {{ p.totalActual | brl }}
+          </span>
+        </div>
+      </div>
+
+      <div class="resumo-card" [class.card-warn]="p.remainingBalance < 0">
+        <div class="resumo-icon-wrap" [class]="p.remainingBalance < 0 ? 'icon-red' : 'icon-amber'">
+          <mat-icon>{{ p.remainingBalance < 0 ? 'money_off' : 'savings' }}</mat-icon>
+        </div>
+        <div class="resumo-body">
+          <span class="resumo-label">Saldo restante</span>
+          <span class="resumo-valor" [class.text-warn]="p.remainingBalance < 0">
+            {{ p.remainingBalance | brl }}
+          </span>
+        </div>
+      </div>
+
+      <div class="resumo-card resumo-card-progress">
+        <div class="resumo-icon-wrap icon-brown">
+          <mat-icon>donut_large</mat-icon>
+        </div>
+        <div class="resumo-body">
+          <span class="resumo-label">Progresso geral</span>
+          <span class="resumo-valor">{{ p.completionPercentage | number:'1.0-1' }}%</span>
+          <mat-progress-bar
+            mode="determinate"
+            [value]="p.completionPercentage"
+            [color]="p.overBudget ? 'warn' : 'primary'" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Ambientes -->
+    <div class="ambientes-section">
+      <div class="section-header">
+        <div class="section-title">
+          <mat-icon>door_front</mat-icon>
+          <h2>Ambientes <span class="count-badge">{{ p.roomCount }}</span></h2>
+        </div>
+        @if (podeAdicionarAmbiente()) {
+          <button mat-raised-button color="primary"
+            [routerLink]="['/projects', p.id, 'environments', 'novo']">
+            <mat-icon>add</mat-icon> Novo ambiente
+          </button>
+        }
+      </div>
+
+      @if (carregandoAmbientes()) {
+        <p class="placeholder-text">Carregando ambientes...</p>
+      } @else if (ambientes().length === 0) {
+        <div class="ambientes-vazio">
+          <div class="vazio-icon"><mat-icon>door_front</mat-icon></div>
+          <p class="vazio-title">Nenhum ambiente cadastrado ainda</p>
+          <p class="vazio-sub">Adicione ambientes para detalhar o orçamento por cômodo.</p>
+        </div>
+      } @else {
+        <div class="ambientes-lista">
+          @for (env of ambientes(); track env.id) {
+            <div class="ambiente-card"
+              [routerLink]="['/projects', p.id, 'environments', env.id]">
+              <div class="amb-icon-wrap">
+                <mat-icon>door_front</mat-icon>
+              </div>
+              <div class="amb-body">
+                <div class="amb-header">
+                  <span class="amb-nome">{{ env.name }}</span>
+                  <div class="amb-badges">
+                    @if (env.hasDelayedItems) {
+                      <span class="badge-delay" matTooltip="Itens com atraso">
+                        <mat-icon>schedule</mat-icon>
+                      </span>
+                    }
+                    <span class="pct-badge" [class.pct-done]="env.completionPercentage >= 100">
+                      {{ env.completionPercentage | number:'1.0-0' }}%
+                    </span>
+                  </div>
+                </div>
+                @if (env.description) {
+                  <p class="amb-desc">{{ env.description }}</p>
+                }
+                <mat-progress-bar
+                  mode="determinate"
+                  [value]="env.completionPercentage"
+                  [color]="env.completionPercentage >= 100 ? 'accent' : 'primary'" />
+              </div>
+              <mat-icon class="amb-arrow">chevron_right</mat-icon>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+
+</div>

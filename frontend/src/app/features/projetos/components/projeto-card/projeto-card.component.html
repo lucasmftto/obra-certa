@@ -1,0 +1,57 @@
+<mat-card class="projeto-card" [class.em-alerta]="projeto().overBudget">
+  <mat-card-header>
+    <mat-card-title class="card-title">
+      <span>{{ projeto().name }}</span>
+      <div class="header-badges">
+        <app-projeto-status-badge [status]="projeto().status" />
+        @if (projeto().hasDelayedItems) {
+          <mat-icon style="color: #ff9800" matTooltip="Possui itens com atraso">schedule</mat-icon>
+        }
+        @if (projeto().overBudget) {
+          <mat-icon color="warn" matTooltip="Orçamento estourado">warning</mat-icon>
+        }
+      </div>
+    </mat-card-title>
+    <mat-card-subtitle>
+      <mat-icon class="tipo-icon">{{ projeto().type === 'HOUSE' ? 'home' : 'apartment' }}</mat-icon>
+      {{ projeto().type === 'HOUSE' ? 'Casa' : 'Apartamento' }}
+      @if (projeto().address) {
+        &middot; {{ projeto().address }}
+      }
+    </mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <div class="progresso-label">
+      <span>Progresso</span>
+      <span>{{ projeto().completionPercentage | number:'1.0-0' }}%</span>
+    </div>
+    <mat-progress-bar
+      mode="determinate"
+      [value]="projeto().completionPercentage"
+      [color]="projeto().overBudget ? 'warn' : 'primary'" />
+
+    <div class="financeiro">
+      <div class="financeiro-item">
+        <span class="label">Orçado</span>
+        <span class="valor">{{ projeto().totalBudget | brl }}</span>
+      </div>
+      <div class="financeiro-item">
+        <span class="label">Efetivo</span>
+        <span class="valor" [class.text-warn]="projeto().overBudget">
+          {{ projeto().totalActual | brl }}
+        </span>
+      </div>
+    </div>
+  </mat-card-content>
+
+  <mat-card-actions align="end">
+    <span class="ambientes-count">
+      <mat-icon>door_front</mat-icon>
+      {{ projeto().roomCount }} ambiente(s)
+    </span>
+    <button mat-button color="primary" [routerLink]="['/projects', projeto().id]">
+      Ver detalhes
+    </button>
+  </mat-card-actions>
+</mat-card>

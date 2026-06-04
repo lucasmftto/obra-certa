@@ -3,9 +3,12 @@
     <button mat-icon-button [routerLink]="['/projects', projectId()]">
       <mat-icon>arrow_back</mat-icon>
     </button>
-    <div>
-      <h1>{{ project()?.name }}</h1>
-      <p class="subtitle">Ambiente #{{ environmentId() }}</p>
+    <div class="header-titles">
+      <p class="project-breadcrumb">
+        <mat-icon class="breadcrumb-icon">home_work</mat-icon>
+        {{ project()?.name }}
+      </p>
+      <h1 class="env-name">{{ environment()?.name ?? '...' }}</h1>
     </div>
     <button mat-raised-button color="primary"
       [routerLink]="['/projects', projectId(), 'environments', environmentId(), 'items', 'new']">

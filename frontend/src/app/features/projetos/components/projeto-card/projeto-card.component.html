@@ -1,4 +1,4 @@
-<mat-card class="projeto-card" [class.em-alerta]="projeto().overBudget">
+<mat-card class="projeto-card" [class.em-alerta]="projeto().overBudget" [routerLink]="['/projects', projeto().id]">
   <mat-card-header>
     <mat-card-title class="card-title">
       <span>{{ projeto().name }}</span>
@@ -45,13 +45,14 @@
     </div>
   </mat-card-content>
 
-  <mat-card-actions align="end">
-    <span class="ambientes-count">
+  <mat-card-actions>
+    <span class="ambientes-count"
+      (mouseenter)="carregarAmbientes()"
+      [matTooltip]="ambientesTooltip()"
+      matTooltipClass="multiline-tooltip"
+      matTooltipShowDelay="400">
       <mat-icon>door_front</mat-icon>
       {{ projeto().roomCount }} ambiente(s)
     </span>
-    <button mat-button color="primary" [routerLink]="['/projects', projeto().id]">
-      Ver detalhes
-    </button>
   </mat-card-actions>
 </mat-card>

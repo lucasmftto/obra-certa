@@ -72,7 +72,6 @@ export interface Environment {
   projectId: number;
   name: string;
   description?: string;
-  sortOrder: number;
   completionPercentage: number;
   hasDelayedItems: boolean;
 }
@@ -80,7 +79,6 @@ export interface Environment {
 export interface EnvironmentRequest {
   name: string;
   description?: string;
-  sortOrder?: number;
   completionPercentage?: number;
 }
 

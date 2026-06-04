@@ -1,21 +1,21 @@
-import { Component, input } from '@angular/core';
+import { Component, input, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BrlPipe } from '@core/pipes/brl.pipe';
 import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ProjectStatusBadgeComponent } from '../projeto-status-badge/projeto-status-badge.component';
 import { Project } from '@core/models/projeto.model';
+import { EnvironmentService } from '@core/services/environment.service';
 
 @Component({
   selector: 'app-projeto-card',
   standalone: true,
   imports: [
     CommonModule, RouterModule, MatCardModule, MatIconModule,
-    MatProgressBarModule, MatButtonModule, MatTooltipModule,
+    MatProgressBarModule, MatTooltipModule,
     ProjectStatusBadgeComponent, BrlPipe,
   ],
   templateUrl: './projeto-card.component.html',
@@ -125,4 +125,21 @@ import { Project } from '@core/models/projeto.model';
 })
 export class ProjectCardComponent {
   projeto = input.required<Project>();
+
+  private environmentService = inject(EnvironmentService);
+  private loaded = false;
+  ambientesTooltip = signal('Carregando...');
+
+  carregarAmbientes() {
+    if (this.loaded) return;
+    this.loaded = true;
+    this.environmentService.listByProject(this.projeto().id).subscribe({
+      next: envs => {
+        this.ambientesTooltip.set(
+          envs.length ? envs.map(e => `• ${e.name}`).join('\n') : 'Nenhum ambiente cadastrado'
+        );
+      },
+      error: () => this.ambientesTooltip.set('Erro ao carregar ambientes'),
+    });
+  }
 }

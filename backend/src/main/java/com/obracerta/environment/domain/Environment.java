@@ -28,10 +28,6 @@ public class Environment {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(nullable = false, name = "sort_order")
-    @Builder.Default
-    private Integer sortOrder = 0;
-
     @Column(nullable = false, precision = 5, scale = 2, name = "completion_percentage")
     @Builder.Default
     private BigDecimal completionPercentage = BigDecimal.ZERO;

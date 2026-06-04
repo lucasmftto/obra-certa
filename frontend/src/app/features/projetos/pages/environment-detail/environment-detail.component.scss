@@ -8,16 +8,42 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-bottom: 24px;
-
-  h1 { margin: 0; }
+  margin-bottom: 28px;
 
   button:last-child { margin-left: auto; }
 }
 
-.subtitle {
-  color: #666;
-  margin: 4px 0 0;
+.header-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.project-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  .breadcrumb-icon {
+    font-size: 14px;
+    height: 14px;
+    width: 14px;
+    color: var(--color-brand);
+  }
+}
+
+.env-name {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-brand);
+  line-height: 1.2;
 }
 
 .progress-card {

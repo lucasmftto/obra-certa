@@ -24,19 +24,6 @@
             placeholder="Detalhes sobre o ambiente (opcional)"></textarea>
         </mat-form-field>
 
-        <div class="row-fields">
-          <mat-form-field appearance="outline">
-            <mat-label>Ordem de exibição</mat-label>
-            <input matInput type="number" formControlName="sortOrder" min="1" />
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>% Concluído</mat-label>
-            <input matInput type="number" formControlName="completionPercentage" min="0" max="100" />
-            <span matTextSuffix>%</span>
-          </mat-form-field>
-        </div>
-
         <div class="form-actions">
           <button type="button" mat-stroked-button [routerLink]="['/projects', projectId()]">
             Cancelar

@@ -38,8 +38,6 @@ export class EnvironmentFormComponent implements OnInit {
   form = this.fb.group({
     name: ['', [Validators.required, Validators.maxLength(150)]],
     description: ['', Validators.maxLength(500)],
-    sortOrder: [1, [Validators.required, Validators.min(1)]],
-    completionPercentage: [0, [Validators.min(0), Validators.max(100)]],
   });
 
   ngOnInit() {
@@ -51,8 +49,6 @@ export class EnvironmentFormComponent implements OnInit {
         this.form.patchValue({
           name: env.name,
           description: env.description ?? '',
-          sortOrder: env.sortOrder,
-          completionPercentage: env.completionPercentage,
         });
       });
     }

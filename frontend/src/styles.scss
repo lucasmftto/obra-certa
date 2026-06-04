@@ -60,3 +60,6 @@ html, body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }
+
+// ── Tooltip multilinha ─────────────────────────────────────────────────────
+.multiline-tooltip { white-space: pre-line; }

@@ -10,8 +10,6 @@ public record EnvironmentRequest(
 
     String description,
 
-    Integer sortOrder,
-
     @DecimalMin(value = "0.0") @DecimalMax(value = "100.0")
     BigDecimal completionPercentage
 ) {}

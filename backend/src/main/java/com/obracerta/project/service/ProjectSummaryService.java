@@ -35,7 +35,7 @@ public class ProjectSummaryService {
         Project project = projectRepository.findByIdAndDeletedAtIsNull(projectId)
             .orElseThrow(() -> new EntityNotFoundException("Projeto não encontrado com id: " + projectId));
 
-        List<Environment> environments = environmentRepository.findByProjectIdOrderBySortOrderAsc(projectId);
+        List<Environment> environments = environmentRepository.findByProjectIdOrderByNameAsc(projectId);
 
         List<EnvironmentSummary> envSummaries = environments.stream()
             .map(this::buildEnvironmentSummary)

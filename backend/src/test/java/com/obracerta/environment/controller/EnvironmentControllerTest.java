@@ -43,7 +43,7 @@ class EnvironmentControllerTest {
     private EnvironmentService service;
 
     private EnvironmentResponse environmentStub() {
-        return new EnvironmentResponse(10L, 1L, "Sala", null, 1, BigDecimal.ZERO, false);
+        return new EnvironmentResponse(10L, 1L, "Sala", null, BigDecimal.ZERO, false);
     }
 
     // ------------------------------------------------------------------ //
@@ -77,7 +77,7 @@ class EnvironmentControllerTest {
     @Test
     @DisplayName("POST /projects/{projectId}/environments — deve retornar 201")
     void create_shouldReturn201() throws Exception {
-        EnvironmentRequest request = new EnvironmentRequest("Sala", "Sala de estar", 1, null);
+        EnvironmentRequest request = new EnvironmentRequest("Sala", "Sala de estar", null);
         when(service.create(eq(1L), any())).thenReturn(environmentStub());
 
         mockMvc.perform(post("/api/v1/projects/1/environments")
@@ -92,7 +92,7 @@ class EnvironmentControllerTest {
     @Test
     @DisplayName("POST /projects/{projectId}/environments — deve retornar 409 quando projeto concluído")
     void create_shouldReturn409_whenProjectIsCompleted() throws Exception {
-        EnvironmentRequest request = new EnvironmentRequest("Sala", null, 1, null);
+        EnvironmentRequest request = new EnvironmentRequest("Sala", null, null);
         when(service.create(eq(2L), any()))
             .thenThrow(new BusinessException("Projeto concluído não pode ser modificado.", HttpStatus.CONFLICT));
 
@@ -106,7 +106,7 @@ class EnvironmentControllerTest {
     @Test
     @DisplayName("POST /projects/{projectId}/environments — deve retornar 422 quando nome em branco")
     void create_shouldReturn422_whenNameIsBlank() throws Exception {
-        EnvironmentRequest request = new EnvironmentRequest("", null, 1, null);
+        EnvironmentRequest request = new EnvironmentRequest("", null, null);
 
         mockMvc.perform(post("/api/v1/projects/1/environments")
                 .with(csrf())

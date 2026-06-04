@@ -9,7 +9,6 @@ public record EnvironmentResponse(
     Long projectId,
     String name,
     String description,
-    Integer sortOrder,
     BigDecimal completionPercentage,
     @JsonProperty("hasDelayedItems") boolean hasDelayedItems
 ) {}

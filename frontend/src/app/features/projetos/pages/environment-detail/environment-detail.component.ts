@@ -13,7 +13,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ItemService } from '@core/services/item.service';
 import { ProjectService } from '@core/services/projeto.service';
-import { Item, Project } from '@core/models/projeto.model';
+import { EnvironmentService } from '@core/services/environment.service';
+import { Environment, Item, Project } from '@core/models/projeto.model';
 
 @Component({
   selector: 'app-environment-detail',
@@ -32,11 +33,13 @@ export class EnvironmentDetailComponent implements OnInit {
   private router = inject(Router);
   private itemService = inject(ItemService);
   private projectService = inject(ProjectService);
+  private environmentService = inject(EnvironmentService);
   private snackBar = inject(MatSnackBar);
 
   projectId = signal(0);
   environmentId = signal(0);
   project = signal<Project | null>(null);
+  environment = signal<Environment | null>(null);
   items = signal<Item[]>([]);
   carregando = signal(true);
 
@@ -60,6 +63,7 @@ export class EnvironmentDetailComponent implements OnInit {
     this.environmentId.set(eid);
 
     this.projectService.findById(pid).subscribe({ next: p => this.project.set(p), error: () => {} });
+    this.environmentService.findById(eid).subscribe({ next: e => this.environment.set(e), error: () => {} });
     this.itemService.listByEnvironment(eid).subscribe({
       next: items => { this.items.set(items); this.carregando.set(false); },
       error: () => this.carregando.set(false),

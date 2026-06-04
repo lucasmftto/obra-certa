@@ -72,11 +72,11 @@ class EnvironmentServiceTest {
             .build();
 
         existingEnvironment = Environment.builder()
-            .id(10L).project(activeProject).name("Sala").sortOrder(1)
+            .id(10L).project(activeProject).name("Sala")
             .completionPercentage(BigDecimal.ZERO)
             .build();
 
-        responseStub = new EnvironmentResponse(10L, 1L, "Sala", null, 1, BigDecimal.ZERO, false);
+        responseStub = new EnvironmentResponse(10L, 1L, "Sala", null, BigDecimal.ZERO, false);
     }
 
     // ------------------------------------------------------------------ //
@@ -86,7 +86,7 @@ class EnvironmentServiceTest {
     @Test
     @DisplayName("create — should save environment when project is active")
     void create_shouldSaveEnvironment_whenProjectIsActive() {
-        EnvironmentRequest request = new EnvironmentRequest("Sala", null, 1, null);
+        EnvironmentRequest request = new EnvironmentRequest("Sala", null, null);
 
         when(projectRepository.findByIdAndDeletedAtIsNull(1L)).thenReturn(Optional.of(activeProject));
         when(environmentRepository.save(any(Environment.class))).thenReturn(existingEnvironment);
@@ -105,7 +105,7 @@ class EnvironmentServiceTest {
     @Test
     @DisplayName("create — should throw BusinessException when project is completed")
     void create_shouldThrowBusinessException_whenProjectIsCompleted() {
-        EnvironmentRequest request = new EnvironmentRequest("Quarto", null, 2, null);
+        EnvironmentRequest request = new EnvironmentRequest("Quarto", null, null);
 
         when(projectRepository.findByIdAndDeletedAtIsNull(2L)).thenReturn(Optional.of(completedProject));
 
@@ -137,15 +137,15 @@ class EnvironmentServiceTest {
     }
 
     @Test
-    @DisplayName("list — should return environments ordered by sortOrder")
+    @DisplayName("list — should return environments ordered alphabetically by name")
     void list_shouldReturnEnvironmentsOrderedBySortOrder() {
-        Environment e1 = Environment.builder().id(1L).project(activeProject).name("Sala").sortOrder(1).completionPercentage(BigDecimal.ZERO).build();
-        Environment e2 = Environment.builder().id(2L).project(activeProject).name("Quarto").sortOrder(2).completionPercentage(BigDecimal.ZERO).build();
-        EnvironmentResponse resp1 = new EnvironmentResponse(1L, 1L, "Sala", null, 1, BigDecimal.ZERO, false);
-        EnvironmentResponse resp2 = new EnvironmentResponse(2L, 1L, "Quarto", null, 2, BigDecimal.ZERO, false);
+        Environment e1 = Environment.builder().id(1L).project(activeProject).name("Sala").completionPercentage(BigDecimal.ZERO).build();
+        Environment e2 = Environment.builder().id(2L).project(activeProject).name("Quarto").completionPercentage(BigDecimal.ZERO).build();
+        EnvironmentResponse resp1 = new EnvironmentResponse(1L, 1L, "Sala", null, BigDecimal.ZERO, false);
+        EnvironmentResponse resp2 = new EnvironmentResponse(2L, 1L, "Quarto", null, BigDecimal.ZERO, false);
 
         when(projectRepository.findByIdAndDeletedAtIsNull(1L)).thenReturn(Optional.of(activeProject));
-        when(environmentRepository.findByProjectIdOrderBySortOrderAsc(1L)).thenReturn(List.of(e1, e2));
+        when(environmentRepository.findByProjectIdOrderByNameAsc(1L)).thenReturn(List.of(e1, e2));
         when(itemRepository.hasDelayedItems(anyLong())).thenReturn(false);
         when(mapper.toResponseWithFlags(e1, false)).thenReturn(resp1);
         when(mapper.toResponseWithFlags(e2, false)).thenReturn(resp2);

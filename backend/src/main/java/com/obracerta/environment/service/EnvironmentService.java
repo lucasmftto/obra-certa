@@ -31,7 +31,7 @@ public class EnvironmentService {
     @Transactional(readOnly = true)
     public List<EnvironmentResponse> list(Long projectId) {
         findProject(projectId);
-        return environmentRepository.findByProjectIdOrderBySortOrderAsc(projectId)
+        return environmentRepository.findByProjectIdOrderByNameAsc(projectId)
             .stream()
             .map(this::toResponse)
             .toList();
@@ -51,7 +51,6 @@ public class EnvironmentService {
             .project(project)
             .name(request.name())
             .description(request.description())
-            .sortOrder(request.sortOrder() != null ? request.sortOrder() : 0)
             .completionPercentage(request.completionPercentage() != null
                 ? request.completionPercentage()
                 : BigDecimal.ZERO)
@@ -67,7 +66,6 @@ public class EnvironmentService {
 
         environment.setName(request.name());
         environment.setDescription(request.description());
-        if (request.sortOrder() != null) environment.setSortOrder(request.sortOrder());
         if (request.completionPercentage() != null) environment.setCompletionPercentage(request.completionPercentage());
 
         return toResponse(environmentRepository.save(environment));

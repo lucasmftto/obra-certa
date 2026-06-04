@@ -18,7 +18,6 @@ public interface EnvironmentMapper {
             environment.getProject().getId(),
             environment.getName(),
             environment.getDescription(),
-            environment.getSortOrder(),
             environment.getCompletionPercentage(),
             hasDelayedItems
         );

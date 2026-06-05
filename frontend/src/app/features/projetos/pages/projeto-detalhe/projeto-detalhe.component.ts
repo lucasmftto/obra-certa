@@ -10,12 +10,15 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ProjectService } from '@core/services/projeto.service';
 import { EnvironmentService } from '@core/services/environment.service';
+import { AttachmentService } from '@core/services/attachment.service';
 import { ProjectStatusBadgeComponent } from '../../components/projeto-status-badge/projeto-status-badge.component';
+import { AttachmentDialogComponent } from '../../components/attachment-dialog/attachment-dialog.component';
 import { Project, ProjectStatus, Environment } from '@core/models/projeto.model';
 
-interface AcaoStatus {
+interface StatusAction {
   label: string;
   novoStatus: ProjectStatus;
   icon: string;
@@ -36,6 +39,7 @@ interface AcaoStatus {
     MatSnackBarModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
+    MatDialogModule,
     ProjectStatusBadgeComponent,
     BrlPipe,
   ],
@@ -47,24 +51,27 @@ export class ProjectDetailComponent implements OnInit {
   private router = inject(Router);
   private projectService = inject(ProjectService);
   private environmentService = inject(EnvironmentService);
+  private attachmentService = inject(AttachmentService);
+  private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
 
-  projeto = signal<Project | null>(null);
-  ambientes = signal<Environment[]>([]);
-  carregando = signal(true);
-  carregandoAmbientes = signal(true);
+  project = signal<Project | null>(null);
+  environments = signal<Environment[]>([]);
+  totalAttachments = signal(0);
+  loading = signal(true);
+  loadingEnvironments = signal(true);
 
-  podeEditar    = computed(() => this.projeto()?.status !== 'COMPLETED');
-  podeExcluir   = computed(() => this.projeto()?.status === 'IN_BUDGET');
-  podeAdicionarAmbiente = computed(() =>
-    this.projeto()?.status !== 'COMPLETED'
+  canEdit    = computed(() => this.project()?.status !== 'COMPLETED');
+  canDelete  = computed(() => this.project()?.status === 'IN_BUDGET');
+  canAddEnvironment = computed(() =>
+    this.project()?.status !== 'COMPLETED'
   );
 
-  acoesPorStatus = computed<AcaoStatus[]>(() => {
-    const s = this.projeto()?.status;
+  statusActions = computed<StatusAction[]>(() => {
+    const s = this.project()?.status;
     if (!s) return [];
 
-    const mapa: Record<ProjectStatus, AcaoStatus[]> = {
+    const mapa: Record<ProjectStatus, StatusAction[]> = {
       IN_BUDGET: [
         { label: 'Iniciar obra', novoStatus: 'IN_PROGRESS', icon: 'play_arrow', color: 'primary' },
       ],
@@ -88,37 +95,53 @@ export class ProjectDetailComponent implements OnInit {
     const id = +this.route.snapshot.paramMap.get('id')!;
     this.projectService.findById(id).subscribe({
       next: (p) => {
-        this.projeto.set(p);
-        this.carregando.set(false);
+        this.project.set(p);
+        this.loading.set(false);
       },
       error: () => {
-        this.carregando.set(false);
+        this.loading.set(false);
         this.router.navigate(['/projects']);
       },
     });
     this.environmentService.listByProject(id).subscribe({
       next: (envs) => {
-        this.ambientes.set(envs);
-        this.carregandoAmbientes.set(false);
+        this.environments.set(envs);
+        this.loadingEnvironments.set(false);
       },
-      error: () => this.carregandoAmbientes.set(false),
+      error: () => this.loadingEnvironments.set(false),
+    });
+    this.attachmentService.list(id).subscribe({
+      next: (lista) => this.totalAttachments.set(lista.length),
+      error: () => {},
     });
   }
 
-  mudarStatus(novoStatus: ProjectStatus): void {
-    const id = this.projeto()!.id;
+  openAttachments(): void {
+    const ref = this.dialog.open(AttachmentDialogComponent, {
+      data: { projectId: this.project()!.id },
+      width: '560px',
+      maxHeight: '80vh',
+      panelClass: 'attachment-dialog-panel',
+    });
+    ref.afterClosed().subscribe((count: number) => {
+      if (count !== undefined) this.totalAttachments.set(count);
+    });
+  }
+
+  changeStatus(novoStatus: ProjectStatus): void {
+    const id = this.project()!.id;
     this.projectService.updateStatus(id, novoStatus).subscribe({
       next: (p) => {
-        this.projeto.set(p);
+        this.project.set(p);
         this.snackBar.open('Status atualizado!', 'OK', { duration: 3000 });
       },
       error: () => {},
     });
   }
 
-  excluir(): void {
+  delete(): void {
     if (!confirm('Tem certeza? Todos os dados do projeto serão removidos.')) return;
-    this.projectService.delete(this.projeto()!.id).subscribe({
+    this.projectService.delete(this.project()!.id).subscribe({
       next: () => {
         this.snackBar.open('Projeto excluído.', 'OK', { duration: 3000 });
         this.router.navigate(['/projects']);

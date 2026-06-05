@@ -1,0 +1,105 @@
+<div class="dialog-wrapper">
+
+  <!-- Topo fixo -->
+  <div class="dialog-header">
+    @if (viewState() === 'preview') {
+      <button mat-icon-button (click)="backToList()" matTooltip="Voltar">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <span class="header-title">{{ selectedAttachment()?.fileName }}</span>
+    } @else {
+      <div class="header-left">
+        <mat-icon class="header-icon">attach_file</mat-icon>
+        <span class="header-title">Anexos</span>
+        @if (!loading()) {
+          <span class="count-badge">{{ attachments().length }}</span>
+        }
+      </div>
+      <div class="header-actions">
+        <button mat-raised-button color="primary" (click)="openFilePicker()" [disabled]="uploading()">
+          <mat-icon>{{ uploading() ? 'hourglass_empty' : 'upload' }}</mat-icon>
+          {{ uploading() ? 'Enviando...' : 'Adicionar' }}
+        </button>
+        <input #fileInput type="file" hidden
+          accept=".pdf,.jpg,.jpeg,.png,.webp,.xls,.xlsx"
+          (change)="uploadFile($event)" />
+      </div>
+    }
+    <button mat-icon-button class="close-btn" (click)="close()" matTooltip="Fechar">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-divider />
+
+  <!-- Corpo -->
+  <div class="dialog-body">
+
+    <!-- Lista -->
+    @if (viewState() === 'list') {
+      @if (loading()) {
+        <div class="center-state">
+          <mat-spinner diameter="40" />
+        </div>
+      } @else if (attachments().length === 0) {
+        <div class="empty-state">
+          <mat-icon class="empty-icon">folder_open</mat-icon>
+          <p class="empty-title">Nenhum anexo ainda</p>
+          <p class="empty-sub">Adicione PDFs, planilhas ou imagens do projeto.</p>
+          <button mat-raised-button color="primary" (click)="openFilePicker()">
+            <mat-icon>upload</mat-icon> Selecionar arquivo
+          </button>
+        </div>
+      } @else {
+        <div class="anexos-lista">
+          @for (attachment of attachments(); track attachment.id) {
+            <div class="anexo-row">
+              <mat-icon class="row-icon" [class]="'icon-' + getIcon(attachment.contentType)">
+                {{ getIcon(attachment.contentType) }}
+              </mat-icon>
+              <div class="row-info">
+                <span class="row-nome">{{ attachment.fileName }}</span>
+                <span class="row-meta">{{ formatSize(attachment.fileSize) }}</span>
+              </div>
+              <div class="row-acoes">
+                <button mat-icon-button matTooltip="Visualizar" (click)="preview(attachment)">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+                <button mat-icon-button color="warn" matTooltip="Remover" (click)="deleteAttachment(attachment)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+
+    <!-- Preview -->
+    @if (viewState() === 'preview') {
+      @if (selectedAttachment(); as selected) {
+        <div class="preview-container">
+          @if (loadingPreview()) {
+            <div class="center-state">
+              <mat-spinner diameter="40" />
+            </div>
+          } @else {
+            @if (isImage(selected.contentType) && previewImageUrl()) {
+              <img class="preview-image" [src]="previewImageUrl()" [alt]="selected.fileName" />
+            } @else if (isPdf(selected.contentType)) {
+              <iframe #pdfFrame class="preview-pdf" [title]="selected.fileName"></iframe>
+            } @else if (isExcel(selected.contentType) && previewExcelHtml()) {
+              <div class="preview-excel" [innerHTML]="previewExcelHtml()"></div>
+            }
+          }
+          <div class="preview-footer">
+            <button mat-stroked-button (click)="download(selected)">
+              <mat-icon>download</mat-icon> Baixar
+            </button>
+          </div>
+        </div>
+      }
+    }
+
+  </div>
+</div>

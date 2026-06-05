@@ -1,14 +1,14 @@
 <div class="form-container">
   <div class="form-header">
-    <button mat-icon-button (click)="voltar()">
+    <button mat-icon-button (click)="back()">
       <mat-icon>arrow_back</mat-icon>
     </button>
-    <h1>{{ titulo() }}</h1>
+    <h1>{{ title() }}</h1>
   </div>
 
   <mat-card>
     <mat-card-content>
-      <form [formGroup]="form" (ngSubmit)="salvar()" class="projeto-form">
+      <form [formGroup]="form" (ngSubmit)="save()" class="projeto-form">
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Nome do projeto *</mat-label>
@@ -57,11 +57,11 @@
 
         <div class="form-actions">
           <button type="button" mat-stroked-button routerLink="/projects">Cancelar</button>
-          <button type="submit" mat-raised-button color="primary" [disabled]="salvando()">
-            @if (salvando()) {
+          <button type="submit" mat-raised-button color="primary" [disabled]="submitting()">
+            @if (submitting()) {
               <mat-icon>hourglass_empty</mat-icon>
             }
-            {{ labelBotao() }}
+            {{ buttonLabel() }}
           </button>
         </div>
 

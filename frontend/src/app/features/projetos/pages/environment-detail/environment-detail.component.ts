@@ -41,7 +41,7 @@ export class EnvironmentDetailComponent implements OnInit {
   project = signal<Project | null>(null);
   environment = signal<Environment | null>(null);
   items = signal<Item[]>([]);
-  carregando = signal(true);
+  loading = signal(true);
 
   totalBudgeted = computed(() => this.items().reduce((s, i) => s + i.totalBudgeted, 0));
   totalActual   = computed(() => this.items().reduce((s, i) => s + i.totalActual, 0));
@@ -65,8 +65,8 @@ export class EnvironmentDetailComponent implements OnInit {
     this.projectService.findById(pid).subscribe({ next: p => this.project.set(p), error: () => {} });
     this.environmentService.findById(eid).subscribe({ next: e => this.environment.set(e), error: () => {} });
     this.itemService.listByEnvironment(eid).subscribe({
-      next: items => { this.items.set(items); this.carregando.set(false); },
-      error: () => this.carregando.set(false),
+      next: items => { this.items.set(items); this.loading.set(false); },
+      error: () => this.loading.set(false),
     });
   }
 

@@ -34,10 +34,10 @@ export class ItemFormComponent implements OnInit {
   projectId = signal(0);
   environmentId = signal(0);
   itemId = signal<number | null>(null);
-  salvando = signal(false);
+  submitting = signal(false);
 
   isEditing = computed(() => this.itemId() !== null);
-  titulo = computed(() => this.isEditing() ? 'Editar item' : 'Novo item');
+  title = computed(() => this.isEditing() ? 'Editar item' : 'Novo item');
 
   units = ['un', 'm', 'm²', 'm³', 'kg', 'L', 'box', 'pc', 'hr', 'day'];
 
@@ -67,9 +67,9 @@ export class ItemFormComponent implements OnInit {
     }
   }
 
-  salvar() {
+  save() {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
-    this.salvando.set(true);
+    this.submitting.set(true);
     const dados = this.form.getRawValue() as any;
 
     const op = this.isEditing()
@@ -81,11 +81,11 @@ export class ItemFormComponent implements OnInit {
         this.snackBar.open(this.isEditing() ? 'Item atualizado!' : 'Item criado!', 'OK', { duration: 3000 });
         this.router.navigate(['/projects', this.projectId(), 'environments', this.environmentId()]);
       },
-      error: () => this.salvando.set(false),
+      error: () => this.submitting.set(false),
     });
   }
 
-  voltar() {
+  back() {
     this.router.navigate(['/projects', this.projectId(), 'environments', this.environmentId()]);
   }
 }

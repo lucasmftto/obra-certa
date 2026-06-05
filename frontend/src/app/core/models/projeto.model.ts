@@ -158,3 +158,13 @@ export interface ExpenseRequest {
   description?: string;
   receiptUrl?: string;
 }
+
+// ─── Attachment ───────────────────────────────────────────────────────────────
+export interface Attachment {
+  id: number;
+  projectId: number;
+  fileName: string;
+  contentType: string;
+  fileSize: number;
+  createdAt: string;
+}

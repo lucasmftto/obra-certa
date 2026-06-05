@@ -49,7 +49,7 @@
     </mat-card>
   </div>
 
-  @if (carregando()) {
+  @if (loading()) {
     <p>Carregando...</p>
   } @else if (items().length === 0) {
     <div class="empty-state">

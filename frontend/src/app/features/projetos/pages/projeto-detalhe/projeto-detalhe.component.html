@@ -1,12 +1,12 @@
 <div class="detalhe-container">
 
-  @if (carregando()) {
+  @if (loading()) {
     <div class="loading-container">
       <mat-spinner diameter="48" />
     </div>
   }
 
-  @if (projeto(); as p) {
+  @if (project(); as p) {
 
     <!-- Cabeçalho -->
     <div class="page-hero">
@@ -45,19 +45,26 @@
       </div>
 
       <div class="hero-actions">
-        @for (acao of acoesPorStatus(); track acao.novoStatus) {
-          <button mat-raised-button [color]="acao.color" (click)="mudarStatus(acao.novoStatus)">
-            <mat-icon>{{ acao.icon }}</mat-icon>
-            {{ acao.label }}
+        @for (action of statusActions(); track action.novoStatus) {
+          <button mat-raised-button [color]="action.color" (click)="changeStatus(action.novoStatus)">
+            <mat-icon>{{ action.icon }}</mat-icon>
+            {{ action.label }}
           </button>
         }
-        @if (podeEditar()) {
+        <button mat-stroked-button class="btn-anexos" (click)="openAttachments()" matTooltip="Anexos do projeto">
+          <mat-icon>attach_file</mat-icon>
+          Anexos
+          @if (totalAttachments() > 0) {
+            <span class="anexos-badge">{{ totalAttachments() }}</span>
+          }
+        </button>
+        @if (canEdit()) {
           <button mat-icon-button [routerLink]="['/projects', p.id, 'editar']" matTooltip="Editar">
             <mat-icon>edit</mat-icon>
           </button>
         }
-        @if (podeExcluir()) {
-          <button mat-icon-button color="warn" (click)="excluir()" matTooltip="Excluir">
+        @if (canDelete()) {
+          <button mat-icon-button color="warn" (click)="delete()" matTooltip="Excluir">
             <mat-icon>delete</mat-icon>
           </button>
         }
@@ -122,7 +129,7 @@
           <mat-icon>door_front</mat-icon>
           <h2>Ambientes <span class="count-badge">{{ p.roomCount }}</span></h2>
         </div>
-        @if (podeAdicionarAmbiente()) {
+        @if (canAddEnvironment()) {
           <button mat-raised-button color="primary"
             [routerLink]="['/projects', p.id, 'environments', 'novo']">
             <mat-icon>add</mat-icon> Novo ambiente
@@ -130,9 +137,9 @@
         }
       </div>
 
-      @if (carregandoAmbientes()) {
+      @if (loadingEnvironments()) {
         <p class="placeholder-text">Carregando ambientes...</p>
-      } @else if (ambientes().length === 0) {
+      } @else if (environments().length === 0) {
         <div class="ambientes-vazio">
           <div class="vazio-icon"><mat-icon>door_front</mat-icon></div>
           <p class="vazio-title">Nenhum ambiente cadastrado ainda</p>
@@ -140,7 +147,7 @@
         </div>
       } @else {
         <div class="ambientes-lista">
-          @for (env of ambientes(); track env.id) {
+          @for (env of environments(); track env.id) {
             <div class="ambiente-card"
               [routerLink]="['/projects', p.id, 'environments', env.id]">
               <div class="amb-icon-wrap">
@@ -174,6 +181,7 @@
         </div>
       }
     </div>
+
   }
 
 </div>

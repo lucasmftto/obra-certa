@@ -38,9 +38,9 @@ import { Project, ProjectStatus, ProjectType } from '@core/models/projeto.model'
 export class ProjectListComponent implements OnInit {
   private projectService = inject(ProjectService);
 
-  projetos = signal<Project[]>([]);
+  projects = signal<Project[]>([]);
   totalElements = signal(0);
-  carregando = signal(false);
+  loading = signal(false);
 
   page = signal(0);
   size = signal(20);
@@ -50,15 +50,15 @@ export class ProjectListComponent implements OnInit {
   buscaControl = new FormControl('');
 
   ngOnInit(): void {
-    this.carregarProjetos();
+    this.loadProjects();
     this.buscaControl.valueChanges.pipe(debounceTime(400)).subscribe(() => {
       this.page.set(0);
-      this.carregarProjetos();
+      this.loadProjects();
     });
   }
 
-  carregarProjetos(): void {
-    this.carregando.set(true);
+  loadProjects(): void {
+    this.loading.set(true);
     this.projectService
       .list({
         status: this.filtroStatus(),
@@ -70,29 +70,29 @@ export class ProjectListComponent implements OnInit {
       })
       .subscribe({
         next: (result) => {
-          this.projetos.set(result.content);
+          this.projects.set(result.content);
           this.totalElements.set(result.totalElements);
-          this.carregando.set(false);
+          this.loading.set(false);
         },
-        error: () => this.carregando.set(false),
+        error: () => this.loading.set(false),
       });
   }
 
   onStatusChange(status: ProjectStatus | ''): void {
     this.filtroStatus.set(status || undefined);
     this.page.set(0);
-    this.carregarProjetos();
+    this.loadProjects();
   }
 
   onTipoChange(tipo: ProjectType | 'TODOS'): void {
     this.filtroTipo.set(tipo === 'TODOS' ? undefined : tipo);
     this.page.set(0);
-    this.carregarProjetos();
+    this.loadProjects();
   }
 
   onPageChange(event: PageEvent): void {
     this.page.set(event.pageIndex);
     this.size.set(event.pageSize);
-    this.carregarProjetos();
+    this.loadProjects();
   }
 }

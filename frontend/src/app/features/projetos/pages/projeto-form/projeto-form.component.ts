@@ -37,12 +37,12 @@ export class ProjectFormComponent implements OnInit {
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
 
-  projetoId = signal<number | null>(null);
-  salvando = signal(false);
+  projectId = signal<number | null>(null);
+  submitting = signal(false);
 
-  isEdicao = computed(() => this.projetoId() !== null);
-  titulo = computed(() => (this.isEdicao() ? 'Editar projeto' : 'Novo projeto'));
-  labelBotao = computed(() => (this.isEdicao() ? 'Salvar alterações' : 'Criar projeto'));
+  editMode = computed(() => this.projectId() !== null);
+  title = computed(() => (this.editMode() ? 'Editar projeto' : 'Novo projeto'));
+  buttonLabel = computed(() => (this.editMode() ? 'Salvar alterações' : 'Criar projeto'));
 
   form = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(200)]],
@@ -54,7 +54,7 @@ export class ProjectFormComponent implements OnInit {
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      this.projetoId.set(+id);
+      this.projectId.set(+id);
       this.projectService.findById(+id).subscribe((p) => {
         this.form.patchValue({
           name: p.name,
@@ -67,16 +67,16 @@ export class ProjectFormComponent implements OnInit {
     }
   }
 
-  voltar(): void {
+  back(): void {
     history.back();
   }
 
-  salvar(): void {
+  save(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
-    this.salvando.set(true);
+    this.submitting.set(true);
     const dados = this.form.getRawValue() as {
       name: string;
       type: ProjectType;
@@ -84,20 +84,20 @@ export class ProjectFormComponent implements OnInit {
       description: string;
     };
 
-    const op = this.isEdicao()
-      ? this.projectService.update(this.projetoId()!, dados)
+    const op = this.editMode()
+      ? this.projectService.update(this.projectId()!, dados)
       : this.projectService.create(dados);
 
     op.subscribe({
       next: (p) => {
         this.snackBar.open(
-          this.isEdicao() ? 'Projeto atualizado!' : 'Projeto criado!',
+          this.editMode() ? 'Projeto atualizado!' : 'Projeto criado!',
           'OK',
           { duration: 3000 }
         );
         this.router.navigate(['/projects', p.id]);
       },
-      error: () => this.salvando.set(false),
+      error: () => this.submitting.set(false),
     });
   }
 }

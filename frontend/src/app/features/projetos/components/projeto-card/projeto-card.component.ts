@@ -124,16 +124,16 @@ import { EnvironmentService } from '@core/services/environment.service';
   `],
 })
 export class ProjectCardComponent {
-  projeto = input.required<Project>();
+  project = input.required<Project>();
 
   private environmentService = inject(EnvironmentService);
   private loaded = false;
   ambientesTooltip = signal('Carregando...');
 
-  carregarAmbientes() {
+  loadEnvironments() {
     if (this.loaded) return;
     this.loaded = true;
-    this.environmentService.listByProject(this.projeto().id).subscribe({
+    this.environmentService.listByProject(this.project().id).subscribe({
       next: envs => {
         this.ambientesTooltip.set(
           envs.length ? envs.map(e => `• ${e.name}`).join('\n') : 'Nenhum ambiente cadastrado'

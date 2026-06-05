@@ -40,7 +40,7 @@ export class ExpenseFormComponent implements OnInit {
   environmentId = signal(0);
   itemId = signal(0);
   categories = signal<Category[]>([]);
-  salvando = signal(false);
+  submitting = signal(false);
   maxDate = new Date();
 
   form = this.fb.group({
@@ -57,9 +57,9 @@ export class ExpenseFormComponent implements OnInit {
     this.categoryService.listAll().subscribe({ next: cats => this.categories.set(cats), error: () => {} });
   }
 
-  salvar() {
+  save() {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
-    this.salvando.set(true);
+    this.submitting.set(true);
     const v = this.form.getRawValue();
 
     const toDateStr = (d: Date | null): string | undefined =>
@@ -75,11 +75,11 @@ export class ExpenseFormComponent implements OnInit {
         this.snackBar.open('Gasto registrado!', 'OK', { duration: 3000 });
         this.router.navigate(['/projects', this.projectId(), 'environments', this.environmentId()]);
       },
-      error: () => this.salvando.set(false),
+      error: () => this.submitting.set(false),
     });
   }
 
-  voltar() {
+  back() {
     this.router.navigate(['/projects', this.projectId(), 'environments', this.environmentId()]);
   }
 }

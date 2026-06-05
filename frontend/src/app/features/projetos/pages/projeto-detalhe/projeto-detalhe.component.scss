@@ -354,6 +354,28 @@
   padding: 24px 0;
 }
 
+// ── Botão de anexos ──────────────────────────────────────────────────────────
+.btn-anexos {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+}
+
+.anexos-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-brand);
+  color: white;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 6px;
+  min-width: 20px;
+  margin-left: 2px;
+}
+
 // ── Responsivo ──────────────────────────────────────────────────────────────
 @media (max-width: 768px) {
   .detalhe-container { padding: 16px; }

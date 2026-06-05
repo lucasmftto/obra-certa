@@ -1,11 +1,11 @@
 <div class="form-container">
   <div class="form-header">
-    <button mat-icon-button (click)="voltar()"><mat-icon>arrow_back</mat-icon></button>
+    <button mat-icon-button (click)="back()"><mat-icon>arrow_back</mat-icon></button>
     <h1>Registrar gasto</h1>
   </div>
   <mat-card>
     <mat-card-content>
-      <form [formGroup]="form" (ngSubmit)="salvar()" class="expense-form">
+      <form [formGroup]="form" (ngSubmit)="save()" class="expense-form">
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Categoria</mat-label>
@@ -43,8 +43,8 @@
         </mat-form-field>
 
         <div class="form-actions">
-          <button type="button" mat-stroked-button (click)="voltar()">Cancelar</button>
-          <button type="submit" mat-raised-button color="primary" [disabled]="salvando()">
+          <button type="button" mat-stroked-button (click)="back()">Cancelar</button>
+          <button type="submit" mat-raised-button color="primary" [disabled]="submitting()">
             Registrar
           </button>
         </div>

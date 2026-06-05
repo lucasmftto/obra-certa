@@ -1,22 +1,22 @@
-<mat-card class="projeto-card" [class.em-alerta]="projeto().overBudget" [routerLink]="['/projects', projeto().id]">
+<mat-card class="projeto-card" [class.em-alerta]="project().overBudget" [routerLink]="['/projects', project().id]">
   <mat-card-header>
     <mat-card-title class="card-title">
-      <span>{{ projeto().name }}</span>
+      <span>{{ project().name }}</span>
       <div class="header-badges">
-        <app-projeto-status-badge [status]="projeto().status" />
-        @if (projeto().hasDelayedItems) {
+        <app-projeto-status-badge [status]="project().status" />
+        @if (project().hasDelayedItems) {
           <mat-icon style="color: #ff9800" matTooltip="Possui itens com atraso">schedule</mat-icon>
         }
-        @if (projeto().overBudget) {
+        @if (project().overBudget) {
           <mat-icon color="warn" matTooltip="Orçamento estourado">warning</mat-icon>
         }
       </div>
     </mat-card-title>
     <mat-card-subtitle>
-      <mat-icon class="tipo-icon">{{ projeto().type === 'HOUSE' ? 'home' : 'apartment' }}</mat-icon>
-      {{ projeto().type === 'HOUSE' ? 'Casa' : 'Apartamento' }}
-      @if (projeto().address) {
-        &middot; {{ projeto().address }}
+      <mat-icon class="tipo-icon">{{ project().type === 'HOUSE' ? 'home' : 'apartment' }}</mat-icon>
+      {{ project().type === 'HOUSE' ? 'Casa' : 'Apartamento' }}
+      @if (project().address) {
+        &middot; {{ project().address }}
       }
     </mat-card-subtitle>
   </mat-card-header>
@@ -24,22 +24,22 @@
   <mat-card-content>
     <div class="progresso-label">
       <span>Progresso</span>
-      <span>{{ projeto().completionPercentage | number:'1.0-0' }}%</span>
+      <span>{{ project().completionPercentage | number:'1.0-0' }}%</span>
     </div>
     <mat-progress-bar
       mode="determinate"
-      [value]="projeto().completionPercentage"
-      [color]="projeto().overBudget ? 'warn' : 'primary'" />
+      [value]="project().completionPercentage"
+      [color]="project().overBudget ? 'warn' : 'primary'" />
 
     <div class="financeiro">
       <div class="financeiro-item">
         <span class="label">Orçado</span>
-        <span class="valor">{{ projeto().totalBudget | brl }}</span>
+        <span class="valor">{{ project().totalBudget | brl }}</span>
       </div>
       <div class="financeiro-item">
         <span class="label">Efetivo</span>
-        <span class="valor" [class.text-warn]="projeto().overBudget">
-          {{ projeto().totalActual | brl }}
+        <span class="valor" [class.text-warn]="project().overBudget">
+          {{ project().totalActual | brl }}
         </span>
       </div>
     </div>
@@ -47,12 +47,12 @@
 
   <mat-card-actions>
     <span class="ambientes-count"
-      (mouseenter)="carregarAmbientes()"
+      (mouseenter)="loadEnvironments()"
       [matTooltip]="ambientesTooltip()"
       matTooltipClass="multiline-tooltip"
       matTooltipShowDelay="400">
       <mat-icon>door_front</mat-icon>
-      {{ projeto().roomCount }} ambiente(s)
+      {{ project().roomCount }} ambiente(s)
     </span>
   </mat-card-actions>
 </mat-card>

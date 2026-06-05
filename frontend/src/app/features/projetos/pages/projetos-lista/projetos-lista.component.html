@@ -33,11 +33,11 @@
     </mat-button-toggle-group>
   </div>
 
-  @if (carregando()) {
+  @if (loading()) {
     <div class="loading-container">
       <mat-spinner diameter="48" />
     </div>
-  } @else if (projetos().length === 0) {
+  } @else if (projects().length === 0) {
     <div class="empty-state">
       <div class="empty-icon"><mat-icon>home_work</mat-icon></div>
       <p>Nenhum projeto encontrado</p>
@@ -48,8 +48,8 @@
     </div>
   } @else {
     <div class="projetos-grid">
-      @for (projeto of projetos(); track projeto.id) {
-        <app-projeto-card [projeto]="projeto" />
+      @for (project of projects(); track project.id) {
+        <app-projeto-card [project]="project" />
       }
     </div>
 

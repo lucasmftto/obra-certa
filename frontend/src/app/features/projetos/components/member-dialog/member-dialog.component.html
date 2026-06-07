@@ -1,0 +1,86 @@
+<div class="dialog-wrapper">
+
+  <div class="dialog-header">
+    <div class="header-left">
+      <mat-icon class="header-icon">group</mat-icon>
+      <span class="header-title">Compartilhamento</span>
+    </div>
+    <button mat-icon-button class="close-btn" (click)="close()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-divider />
+
+  <div class="dialog-body">
+
+    @if (isOwner) {
+      <form [formGroup]="form" (ngSubmit)="addMember()" class="add-form">
+        <mat-form-field appearance="outline" class="email-field">
+          <mat-label>E-mail do usuário</mat-label>
+          <input matInput formControlName="email" type="email" placeholder="usuario@email.com" />
+          <mat-icon matPrefix>email</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="role-field">
+          <mat-label>Permissão</mat-label>
+          <mat-select formControlName="role">
+            <mat-option value="EDITOR">Editor</mat-option>
+            <mat-option value="VIEWER">Visualizador</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" type="submit"
+          [disabled]="form.invalid || submitting()">
+          @if (submitting()) {
+            <mat-spinner diameter="18" />
+          } @else {
+            <mat-icon>person_add</mat-icon>
+          }
+          Adicionar
+        </button>
+      </form>
+
+      <mat-divider />
+    }
+
+    <div class="members-section">
+      <p class="section-label">Membros com acesso</p>
+
+      @if (loading()) {
+        <div class="center-state">
+          <mat-spinner diameter="36" />
+        </div>
+      } @else if (members().length === 0) {
+        <div class="empty-state">
+          <mat-icon>group_off</mat-icon>
+          <span>Nenhum membro além do dono.</span>
+        </div>
+      } @else {
+        <div class="members-list">
+          @for (member of members(); track member.userId) {
+            <div class="member-row">
+              <div class="member-avatar">
+                {{ member.name.charAt(0).toUpperCase() }}
+              </div>
+              <div class="member-info">
+                <span class="member-name">{{ member.name }}</span>
+                <span class="member-email">{{ member.email }}</span>
+              </div>
+              <span class="role-badge" [class]="'role-' + member.role.toLowerCase()">
+                {{ roleLabel(member.role) }}
+              </span>
+              @if (isOwner) {
+                <button mat-icon-button color="warn" matTooltip="Remover"
+                  (click)="removeMember(member)">
+                  <mat-icon>person_remove</mat-icon>
+                </button>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+  </div>
+</div>

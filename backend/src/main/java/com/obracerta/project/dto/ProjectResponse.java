@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 
 public record ProjectResponse(
     Long id,
+    Long ownerId,
     String name,
     ProjectType type,
     String address,

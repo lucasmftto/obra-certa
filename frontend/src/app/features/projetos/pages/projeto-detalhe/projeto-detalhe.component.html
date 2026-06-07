@@ -51,6 +51,12 @@
             {{ action.label }}
           </button>
         }
+        @if (isOwner()) {
+          <button mat-stroked-button (click)="openMembers()" matTooltip="Compartilhar projeto">
+            <mat-icon>group</mat-icon>
+            Compartilhar
+          </button>
+        }
         <button mat-stroked-button class="btn-anexos" (click)="openAttachments()" matTooltip="Anexos do projeto">
           <mat-icon>attach_file</mat-icon>
           Anexos

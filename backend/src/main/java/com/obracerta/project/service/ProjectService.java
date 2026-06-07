@@ -1,5 +1,8 @@
 package com.obracerta.project.service;
 
+import com.obracerta.auth.domain.User;
+import com.obracerta.auth.repository.UserRepository;
+import com.obracerta.member.repository.ProjectMemberRepository;
 import com.obracerta.project.domain.Project;
 import com.obracerta.project.domain.ProjectStatus;
 import com.obracerta.project.domain.ProjectType;
@@ -26,38 +29,44 @@ public class ProjectService {
 
     private final ProjectRepository repository;
     private final ProjectMapper mapper;
+    private final UserRepository userRepository;
+    private final ProjectMemberRepository memberRepository;
 
     @Transactional(readOnly = true)
-    public Page<ProjectResponse> list(ProjectStatus status, ProjectType type, String search, Pageable pageable) {
+    public Page<ProjectResponse> list(ProjectStatus status, ProjectType type, String search, Long userId, Pageable pageable) {
         String searchLike = (search != null && !search.isBlank())
             ? "%" + search.toLowerCase() + "%"
             : null;
-        return repository.findWithFilters(status, type, searchLike, pageable)
+        return repository.findAccessibleByUser(userId, status, type, searchLike, pageable)
             .map(this::toResponseWithCalculations);
     }
 
     @Transactional(readOnly = true)
-    public ProjectResponse findById(Long id) {
-        Project project = repository.findByIdAndDeletedAtIsNull(id)
-            .orElseThrow(() -> new EntityNotFoundException("Projeto não encontrado com id: " + id));
+    public ProjectResponse findById(Long id, Long userId) {
+        Project project = findEntity(id);
+        checkAccess(project, userId);
         return toResponseWithCalculations(project);
     }
 
     @Transactional
-    public ProjectResponse create(ProjectRequest request) {
+    public ProjectResponse create(ProjectRequest request, Long userId) {
+        User owner = userRepository.findById(userId)
+            .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado com id: " + userId));
         Project project = Project.builder()
             .name(request.name())
             .type(request.type())
             .address(request.address())
             .description(request.description())
+            .owner(owner)
             .build();
         project = repository.save(project);
         return toResponseWithCalculations(project);
     }
 
     @Transactional
-    public ProjectResponse update(Long id, ProjectRequest request) {
+    public ProjectResponse update(Long id, ProjectRequest request, Long userId) {
         Project project = findEntity(id);
+        checkAccess(project, userId);
         if (project.isCompleted()) {
             throw new BusinessException(
                 "Projeto concluído não pode ser editado.",
@@ -73,8 +82,9 @@ public class ProjectService {
     }
 
     @Transactional
-    public ProjectResponse updateStatus(Long id, ProjectStatus newStatus) {
+    public ProjectResponse updateStatus(Long id, ProjectStatus newStatus, Long userId) {
         Project project = findEntity(id);
+        checkAccess(project, userId);
         ProjectStatus currentStatus = project.getStatus();
 
         if (!currentStatus.canTransitionTo(newStatus)) {
@@ -100,8 +110,9 @@ public class ProjectService {
     }
 
     @Transactional
-    public void delete(Long id) {
+    public void delete(Long id, Long userId) {
         Project project = findEntity(id);
+        checkOwner(project, userId);
         if (project.getStatus() != ProjectStatus.IN_BUDGET) {
             throw new BusinessException(
                 "Apenas projetos com status IN_BUDGET podem ser excluídos.",
@@ -117,6 +128,20 @@ public class ProjectService {
     private Project findEntity(Long id) {
         return repository.findByIdAndDeletedAtIsNull(id)
             .orElseThrow(() -> new EntityNotFoundException("Projeto não encontrado com id: " + id));
+    }
+
+    void checkAccess(Project project, Long userId) {
+        boolean isOwner = project.getOwner() != null && project.getOwner().getId().equals(userId);
+        boolean isMember = memberRepository.existsByIdProjectIdAndIdUserId(project.getId(), userId);
+        if (!isOwner && !isMember) {
+            throw new BusinessException("Acesso negado ao projeto.", HttpStatus.FORBIDDEN);
+        }
+    }
+
+    void checkOwner(Project project, Long userId) {
+        if (project.getOwner() == null || !project.getOwner().getId().equals(userId)) {
+            throw new BusinessException("Apenas o owner pode realizar esta operação.", HttpStatus.FORBIDDEN);
+        }
     }
 
     private ProjectResponse toResponseWithCalculations(Project project) {

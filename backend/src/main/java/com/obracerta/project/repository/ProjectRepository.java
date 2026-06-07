@@ -12,9 +12,28 @@ import org.springframework.data.repository.query.Param;
 import java.math.BigDecimal;
 import java.util.Optional;
 
+
+
 public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     Page<Project> findByDeletedAtIsNull(Pageable pageable);
+
+    @Query("""
+        SELECT DISTINCT p FROM Project p
+        LEFT JOIN com.obracerta.member.domain.ProjectMember m ON m.project = p
+        WHERE p.deletedAt IS NULL
+        AND (:#{#status} IS NULL OR p.status = :status)
+        AND (:#{#type} IS NULL OR p.type = :type)
+        AND (:search IS NULL OR LOWER(p.name) LIKE :search)
+        AND (p.owner.id = :userId OR m.user.id = :userId)
+        """)
+    Page<Project> findAccessibleByUser(
+        @Param("userId") Long userId,
+        @Param("status") ProjectStatus status,
+        @Param("type") ProjectType type,
+        @Param("search") String search,
+        Pageable pageable
+    );
 
     @Query("""
         SELECT p FROM Project p

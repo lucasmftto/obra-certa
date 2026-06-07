@@ -8,6 +8,7 @@ export type ProjectStatus =
 
 export interface Project {
   id: number;
+  ownerId: number | null;
   name: string;
   type: ProjectType;
   address?: string;

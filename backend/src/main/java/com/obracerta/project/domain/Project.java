@@ -1,5 +1,6 @@
 package com.obracerta.project.domain;
 
+import com.obracerta.auth.domain.User;
 import com.obracerta.environment.domain.Environment;
 import jakarta.persistence.*;
 import lombok.*;
@@ -37,6 +38,10 @@ public class Project {
     @Column(nullable = false, length = 30)
     @Builder.Default
     private ProjectStatus status = ProjectStatus.IN_BUDGET;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id")
+    private User owner;
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default

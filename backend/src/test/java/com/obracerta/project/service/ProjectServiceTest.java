@@ -1,5 +1,8 @@
 package com.obracerta.project.service;
 
+import com.obracerta.auth.domain.User;
+import com.obracerta.auth.repository.UserRepository;
+import com.obracerta.member.repository.ProjectMemberRepository;
 import com.obracerta.project.domain.Project;
 import com.obracerta.project.domain.ProjectStatus;
 import com.obracerta.project.domain.ProjectType;
@@ -37,20 +40,37 @@ class ProjectServiceTest {
     @Mock
     private ProjectMapper mapper;
 
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private ProjectMemberRepository memberRepository;
+
     @InjectMocks
     private ProjectService service;
 
+    private static final Long OWNER_ID = 1L;
+
+    private User owner;
     private Project projectInBudget;
     private Project projectInProgress;
     private ProjectResponse responseStub;
 
     @BeforeEach
     void setUp() {
+        owner = User.builder()
+            .id(OWNER_ID)
+            .name("John")
+            .email("john@example.com")
+            .password("hashed")
+            .build();
+
         projectInBudget = Project.builder()
             .id(1L)
             .name("Beach House")
             .type(ProjectType.HOUSE)
             .status(ProjectStatus.IN_BUDGET)
+            .owner(owner)
             .environments(new ArrayList<>())
             .createdAt(LocalDateTime.now())
             .updatedAt(LocalDateTime.now())
@@ -61,6 +81,7 @@ class ProjectServiceTest {
             .name("Downtown Apartment")
             .type(ProjectType.APARTMENT)
             .status(ProjectStatus.IN_PROGRESS)
+            .owner(owner)
             .environments(new ArrayList<>())
             .createdAt(LocalDateTime.now())
             .updatedAt(LocalDateTime.now())
@@ -82,6 +103,8 @@ class ProjectServiceTest {
         lenient().when(repository.hasDelayedItems(anyLong())).thenReturn(false);
         lenient().when(mapper.toResponseWithCalculations(any(), any(), any(), any(), any(), any(), anyBoolean(), anyBoolean(), anyInt()))
             .thenReturn(responseStub);
+        // default: current user is owner (not blocked by access check)
+        lenient().when(memberRepository.existsByIdProjectIdAndIdUserId(anyLong(), anyLong())).thenReturn(false);
     }
 
     // ------------------------------------------------------------------ //
@@ -93,6 +116,7 @@ class ProjectServiceTest {
     void create_shouldSaveWithInBudgetStatus() {
         ProjectRequest request = new ProjectRequest("Beach House", ProjectType.HOUSE, null, null);
 
+        when(userRepository.findById(OWNER_ID)).thenReturn(Optional.of(owner));
         when(repository.save(any(Project.class))).thenAnswer(inv -> {
             Project p = inv.getArgument(0);
             p.setId(1L);
@@ -100,12 +124,13 @@ class ProjectServiceTest {
             return p;
         });
 
-        ProjectResponse response = service.create(request);
+        ProjectResponse response = service.create(request, OWNER_ID);
 
         assertThat(response).isNotNull();
         verify(repository).save(argThat(p ->
             p.getStatus() == ProjectStatus.IN_BUDGET &&
-            p.getName().equals("Beach House")
+            p.getName().equals("Beach House") &&
+            p.getOwner().equals(owner)
         ));
     }
 
@@ -118,7 +143,7 @@ class ProjectServiceTest {
     void findById_shouldThrowEntityNotFoundException_whenNotFound() {
         when(repository.findByIdAndDeletedAtIsNull(99L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> service.findById(99L))
+        assertThatThrownBy(() -> service.findById(99L, OWNER_ID))
             .isInstanceOf(EntityNotFoundException.class)
             .hasMessageContaining("99");
     }
@@ -133,7 +158,7 @@ class ProjectServiceTest {
         when(repository.findByIdAndDeletedAtIsNull(2L)).thenReturn(Optional.of(projectInProgress));
         when(repository.save(any())).thenReturn(projectInProgress);
 
-        ProjectResponse response = service.updateStatus(2L, ProjectStatus.ON_HOLD);
+        ProjectResponse response = service.updateStatus(2L, ProjectStatus.ON_HOLD, OWNER_ID);
 
         assertThat(response).isNotNull();
         verify(repository).save(argThat(p -> p.getStatus() == ProjectStatus.ON_HOLD));
@@ -145,13 +170,14 @@ class ProjectServiceTest {
         Project completed = Project.builder()
             .id(3L).name("Finished Project").type(ProjectType.HOUSE)
             .status(ProjectStatus.COMPLETED)
+            .owner(owner)
             .environments(new ArrayList<>())
             .createdAt(LocalDateTime.now()).updatedAt(LocalDateTime.now())
             .build();
 
         when(repository.findByIdAndDeletedAtIsNull(3L)).thenReturn(Optional.of(completed));
 
-        assertThatThrownBy(() -> service.updateStatus(3L, ProjectStatus.ON_HOLD))
+        assertThatThrownBy(() -> service.updateStatus(3L, ProjectStatus.ON_HOLD, OWNER_ID))
             .isInstanceOf(BusinessException.class)
             .hasMessageContaining("não é permitida")
             .satisfies(ex -> assertThat(((BusinessException) ex).getStatus()).isEqualTo(HttpStatus.CONFLICT));
@@ -163,6 +189,7 @@ class ProjectServiceTest {
         Project completed = Project.builder()
             .id(3L).name("Finished Project").type(ProjectType.HOUSE)
             .status(ProjectStatus.COMPLETED)
+            .owner(owner)
             .environments(new ArrayList<>())
             .createdAt(LocalDateTime.now()).updatedAt(LocalDateTime.now())
             .build();
@@ -170,7 +197,7 @@ class ProjectServiceTest {
         when(repository.findByIdAndDeletedAtIsNull(3L)).thenReturn(Optional.of(completed));
         when(repository.save(any())).thenReturn(completed);
 
-        ProjectResponse response = service.updateStatus(3L, ProjectStatus.IN_PROGRESS);
+        ProjectResponse response = service.updateStatus(3L, ProjectStatus.IN_PROGRESS, OWNER_ID);
 
         assertThat(response).isNotNull();
         verify(repository).save(argThat(p -> p.getStatus() == ProjectStatus.IN_PROGRESS));
@@ -182,7 +209,7 @@ class ProjectServiceTest {
         when(repository.findByIdAndDeletedAtIsNull(1L)).thenReturn(Optional.of(projectInBudget));
         when(repository.hasItems(1L)).thenReturn(false);
 
-        assertThatThrownBy(() -> service.updateStatus(1L, ProjectStatus.IN_PROGRESS))
+        assertThatThrownBy(() -> service.updateStatus(1L, ProjectStatus.IN_PROGRESS, OWNER_ID))
             .isInstanceOf(BusinessException.class)
             .hasMessageContaining("ao menos um ambiente")
             .satisfies(ex -> assertThat(((BusinessException) ex).getStatus()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY));
@@ -198,7 +225,7 @@ class ProjectServiceTest {
         when(repository.findByIdAndDeletedAtIsNull(1L)).thenReturn(Optional.of(projectInBudget));
         when(repository.save(any())).thenReturn(projectInBudget);
 
-        service.delete(1L);
+        service.delete(1L, OWNER_ID);
 
         verify(repository).save(argThat(p -> p.getDeletedAt() != null));
     }
@@ -208,7 +235,7 @@ class ProjectServiceTest {
     void delete_shouldThrowException_whenStatusDoesNotAllowDeletion() {
         when(repository.findByIdAndDeletedAtIsNull(2L)).thenReturn(Optional.of(projectInProgress));
 
-        assertThatThrownBy(() -> service.delete(2L))
+        assertThatThrownBy(() -> service.delete(2L, OWNER_ID))
             .isInstanceOf(BusinessException.class)
             .hasMessageContaining("IN_BUDGET")
             .satisfies(ex -> assertThat(((BusinessException) ex).getStatus()).isEqualTo(HttpStatus.CONFLICT));

@@ -1,0 +1,144 @@
+.dialog-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-width: 480px;
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px 12px 20px;
+  flex-shrink: 0;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.header-icon {
+  color: var(--color-text-muted);
+  font-size: 20px;
+  height: 20px;
+  width: 20px;
+}
+
+.header-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.close-btn { color: var(--color-text-muted); }
+
+.dialog-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.add-form {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  .email-field { flex: 1; min-width: 200px; }
+  .role-field  { width: 150px; }
+
+  button { margin-top: 4px; white-space: nowrap; }
+}
+
+.section-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-muted);
+  margin: 0 0 12px;
+}
+
+.members-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.member-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 4px;
+  border-radius: 8px;
+  transition: background 0.15s;
+
+  &:hover { background: var(--color-bg); }
+}
+
+.member-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--color-brand);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.member-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.member-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.member-email {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.role-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  flex-shrink: 0;
+
+  &.role-editor { background: #EBF4FF; color: #1A6BB5; }
+  &.role-viewer { background: #F0EBE8; color: var(--color-brand); }
+}
+
+.center-state {
+  display: flex;
+  justify-content: center;
+  padding: 24px 0;
+}
+
+.empty-state {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-muted);
+  font-size: 14px;
+  padding: 8px 0;
+
+  mat-icon { font-size: 20px; height: 20px; width: 20px; }
+}

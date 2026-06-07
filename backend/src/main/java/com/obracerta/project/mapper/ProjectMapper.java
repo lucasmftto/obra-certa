@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 @Mapper(componentModel = "spring")
 public interface ProjectMapper {
 
+    @Mapping(target = "ownerId", ignore = true)
     @Mapping(target = "totalBudget", ignore = true)
     @Mapping(target = "totalActual", ignore = true)
     @Mapping(target = "remainingBalance", ignore = true)
@@ -32,6 +33,7 @@ public interface ProjectMapper {
             int roomCount) {
         return new ProjectResponse(
             project.getId(),
+            project.getOwner() != null ? project.getOwner().getId() : null,
             project.getName(),
             project.getType(),
             project.getAddress(),

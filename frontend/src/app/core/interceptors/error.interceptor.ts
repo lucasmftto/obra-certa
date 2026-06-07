@@ -8,8 +8,10 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      const mensagem = error.error?.mensagem ?? 'Ocorreu um erro inesperado.';
-      snackBar.open(mensagem, 'Fechar', { duration: 5000, panelClass: 'snack-error' });
+      if (error.status !== 401) {
+        const mensagem = error.error?.mensagem ?? 'Ocorreu um erro inesperado.';
+        snackBar.open(mensagem, 'Fechar', { duration: 5000, panelClass: 'snack-error' });
+      }
       return throwError(() => error);
     }),
   );

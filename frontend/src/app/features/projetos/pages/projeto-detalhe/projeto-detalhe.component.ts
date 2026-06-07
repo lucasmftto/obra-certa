@@ -14,8 +14,10 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ProjectService } from '@core/services/projeto.service';
 import { EnvironmentService } from '@core/services/environment.service';
 import { AttachmentService } from '@core/services/attachment.service';
+import { AuthService } from '@core/services/auth.service';
 import { ProjectStatusBadgeComponent } from '../../components/projeto-status-badge/projeto-status-badge.component';
 import { AttachmentDialogComponent } from '../../components/attachment-dialog/attachment-dialog.component';
+import { MemberDialogComponent } from '../../components/member-dialog/member-dialog.component';
 import { Project, ProjectStatus, Environment } from '@core/models/projeto.model';
 
 interface StatusAction {
@@ -52,6 +54,7 @@ export class ProjectDetailComponent implements OnInit {
   private projectService = inject(ProjectService);
   private environmentService = inject(EnvironmentService);
   private attachmentService = inject(AttachmentService);
+  private authService = inject(AuthService);
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
 
@@ -63,8 +66,9 @@ export class ProjectDetailComponent implements OnInit {
 
   canEdit    = computed(() => this.project()?.status !== 'COMPLETED');
   canDelete  = computed(() => this.project()?.status === 'IN_BUDGET');
-  canAddEnvironment = computed(() =>
-    this.project()?.status !== 'COMPLETED'
+  canAddEnvironment = computed(() => this.project()?.status !== 'COMPLETED');
+  isOwner    = computed(() =>
+    this.project()?.ownerId === this.authService.currentUser()?.id
   );
 
   statusActions = computed<StatusAction[]>(() => {
@@ -113,6 +117,17 @@ export class ProjectDetailComponent implements OnInit {
     this.attachmentService.list(id).subscribe({
       next: (lista) => this.totalAttachments.set(lista.length),
       error: () => {},
+    });
+  }
+
+  openMembers(): void {
+    this.dialog.open(MemberDialogComponent, {
+      data: {
+        projectId: this.project()!.id,
+        ownerId: this.project()!.ownerId,
+        currentUserId: this.authService.currentUser()!.id,
+      },
+      width: '560px',
     });
   }
 

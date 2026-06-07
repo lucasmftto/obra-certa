@@ -1,12 +1,26 @@
 <div class="app-shell">
-  <mat-toolbar color="primary" class="app-toolbar">
-    <a class="toolbar-brand" routerLink="/projects">
-      <mat-icon class="brand-icon">construction</mat-icon>
-      <span class="brand-name">Obra Certa</span>
-    </a>
-  </mat-toolbar>
+
+  @if (authService.isLoggedIn()) {
+    <mat-toolbar color="primary" class="app-toolbar">
+      <a class="toolbar-brand" routerLink="/projects">
+        <mat-icon class="brand-icon">construction</mat-icon>
+        <span class="brand-name">Obra Certa</span>
+      </a>
+
+      <span class="toolbar-spacer"></span>
+
+      <div class="toolbar-user">
+        <mat-icon class="user-icon">account_circle</mat-icon>
+        <span class="user-name">{{ authService.currentUser()?.name }}</span>
+        <button mat-icon-button (click)="authService.logout()" matTooltip="Sair">
+          <mat-icon>logout</mat-icon>
+        </button>
+      </div>
+    </mat-toolbar>
+  }
 
   <main class="app-main">
     <router-outlet />
   </main>
+
 </div>

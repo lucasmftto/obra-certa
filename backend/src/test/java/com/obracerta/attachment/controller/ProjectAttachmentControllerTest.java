@@ -3,9 +3,12 @@ package com.obracerta.attachment.controller;
 import com.obracerta.attachment.domain.ProjectAttachment;
 import com.obracerta.attachment.dto.AttachmentResponse;
 import com.obracerta.attachment.service.ProjectAttachmentService;
+import com.obracerta.auth.repository.UserRepository;
+import com.obracerta.auth.service.JwtService;
 import com.obracerta.project.domain.Project;
 import com.obracerta.project.domain.ProjectStatus;
 import com.obracerta.project.domain.ProjectType;
+import com.obracerta.shared.config.SecurityConfig;
 import com.obracerta.shared.exception.BusinessException;
 import com.obracerta.shared.exception.GlobalExceptionHandler;
 import jakarta.persistence.EntityNotFoundException;
@@ -19,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
@@ -32,7 +36,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ProjectAttachmentController.class)
-@Import(GlobalExceptionHandler.class)
+@Import({SecurityConfig.class, GlobalExceptionHandler.class})
+@TestPropertySource(properties = {
+    "app.cors.allowed-origins=http://localhost:4200",
+    "app.jwt.secret=404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970",
+    "app.jwt.expiration-ms=604800000"
+})
 @WithMockUser
 @DisplayName("ProjectAttachmentController — WebMvc Tests")
 class ProjectAttachmentControllerTest {
@@ -42,6 +51,12 @@ class ProjectAttachmentControllerTest {
 
     @MockBean
     private ProjectAttachmentService service;
+
+    @MockBean
+    private JwtService jwtService;
+
+    @MockBean
+    private UserRepository userRepository;
 
     private AttachmentResponse attachmentStub() {
         return new AttachmentResponse(10L, 1L, "planta.pdf", "application/pdf", 1024L, LocalDateTime.now());

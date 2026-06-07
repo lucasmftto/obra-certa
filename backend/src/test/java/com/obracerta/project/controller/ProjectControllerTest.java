@@ -79,7 +79,7 @@ class ProjectControllerTest {
 
     private ProjectResponse projectResponseStub() {
         return new ProjectResponse(
-            1L, "Casa da Praia", ProjectType.HOUSE,
+            1L, 1L, "Casa da Praia", ProjectType.HOUSE,
             "Rua A, 100", "Minha casa",
             ProjectStatus.IN_BUDGET,
             BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO,

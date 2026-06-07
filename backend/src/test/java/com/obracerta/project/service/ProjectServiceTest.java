@@ -88,7 +88,7 @@ class ProjectServiceTest {
             .build();
 
         responseStub = new ProjectResponse(
-            1L, "Beach House", ProjectType.HOUSE,
+            1L, 1L, "Beach House", ProjectType.HOUSE,
             null, null, ProjectStatus.IN_BUDGET,
             BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO,
             BigDecimal.ZERO, BigDecimal.ZERO,

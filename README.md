@@ -1,5 +1,7 @@
 # Obra Certa 🔧
 
+[![CI](https://github.com/lucasmftto/obra-certa/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/lucasmftto/obra-certa/actions/workflows/ci.yml)
+
 Sistema de gerenciamento de orçamentos e controle de gastos em reformas residenciais.
 
 ## Sobre o projeto

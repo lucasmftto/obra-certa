@@ -101,7 +101,7 @@ export interface ProjectFilters {
 }
 
 // ─── Item ───────────────────────────────────────────────────────────────────
-export type ItemType = 'MATERIAL' | 'LABOR';
+export type ItemType = 'MATERIAL' | 'LABOR' | 'ELECTRODOMESTIC';
 
 export interface Item {
   id: number;
